@@ -17,8 +17,8 @@ This project requires Python 3.x and the following libraries:
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git)
-   cd YOUR_REPOSITORY_NAME
+   git clone https://github.com/ClaysonV/Sharpe-Analyzer.git
+   cd Sharpe-Analyzer
    ```
 
 2. (Optional but recommended) Create and activate a virtual environment:
