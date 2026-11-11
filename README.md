@@ -2,6 +2,16 @@
 
 A Python tool that calculates, compares, and visualizes the annualized Sharpe Ratios for a custom portfolio of assets using historical market data from Yahoo Finance.
 
+## How It Works
+
+The **Sharpe Ratio** measures the performance of an investment compared to a risk-free asset, after adjusting for its risk. 
+
+This tool calculates the annualized Sharpe Ratio using the following methodology:
+1. **Daily Returns:** Calculates the daily percentage change for each asset.
+2. **Excess Returns:** Subtracts the daily risk-free rate (using the 13-week T-Bill `^IRX`, normalized to a daily rate) from the asset's daily return.
+3. **Daily Sharpe Ratio:** Divides the mean of the daily excess returns by their standard deviation.
+4. **Annualization:** Multiplies the daily Sharpe Ratio by the square root of 252 (the approximate number of trading days in a year).
+
 ## Features
 * **Automated Data Retrieval:** Fetches historical closing prices for specified stock tickers and a risk-free rate proxy.
 * **Risk-Adjusted Return Calculation:** Computes daily percentage returns, isolates excess returns, and calculates the annualized Sharpe Ratio for each asset.

@@ -5,29 +5,22 @@ import matplotlib.pyplot as plt
 
 def get_sharpe_ratios(tickers, risk_free_ticker, start_date, end_date):
     """
-    Analyzes and calculates the annualized Sharpe Ratios for a portfolio of assets.
-
-    The Sharpe Ratio is a measure of risk-adjusted return, defined as
-    (Mean Asset Return - Mean Risk-Free Return) / Std Dev of Excess Return.
+    Calculates the annualized Sharpe Ratios for a portfolio of assets.
 
     Args:
-        tickers (list): A list of asset ticker symbols (e.g., ['AAPL', 'MSFT']).
-        risk_free_ticker (str): The ticker for the risk-free rate proxy
-                                (e.g., '^IRX' for 13-week T-bill).
-        start_date (str): The start date for historical data in 'YYYY-MM-DD' format.
-        end_date (str): The end date for historical data in 'YYYY-MM-DD' format.
+        tickers (list): Asset ticker symbols (e.g., ['AAPL', 'MSFT']).
+        risk_free_ticker (str): Ticker for the risk-free rate proxy (e.g., '^IRX').
+        start_date (str): Start date for historical data ('YYYY-MM-DD').
+        end_date (str): End date for historical data ('YYYY-MM-DD').
 
     Returns:
-        pandas.Series: A Series of calculated annualized Sharpe Ratios, indexed by ticker.
+        pandas.Series: Annualized Sharpe Ratios indexed by ticker, or None on failure.
     """
-    
-    # 1. Retrieve Historical Market Data
     tickers_with_rf = tickers + [risk_free_ticker]
+    
     try:
-        # Download 'Close' prices. With yfinance's new default (auto_adjust=True),
-        # 'Close' is already the adjusted close price.
-        data = yf.download(tickers_with_rf, start=start_date, end=end_date)['Close'] # <-- THIS IS THE FIX
-        
+        # Note: yfinance defaults to auto_adjust=True, so 'Close' is the adjusted close.
+        data = yf.download(tickers_with_rf, start=start_date, end=end_date)['Close']
         if data.empty:
             print("Error: No data downloaded. Verify tickers and date range.")
             return None
@@ -35,35 +28,17 @@ def get_sharpe_ratios(tickers, risk_free_ticker, start_date, end_date):
         print(f"Error downloading data: {e}")
         return None
 
-    # 2. Compute Daily Percentage Returns
-    # pct_change() calculates the daily price movement
     returns = data.pct_change().dropna()
-
-    # 3. Isolate Asset Returns and Risk-Free Rate
     stock_returns = returns[tickers]
     
-    # Normalize the risk-free rate:
-    # T-bill yield ('^IRX') is an annualized percentage
+    # Normalize annualized T-bill yield to a daily rate
     rf_daily = returns[risk_free_ticker] / 100 / 252
     
-    # 4. Compute Daily Excess Returns
-    # Excess return is the asset's return minus the risk-free rate.
-    # This represents the reward for taking on additional risk.
     excess_returns = stock_returns.subtract(rf_daily, axis=0)
-
-    # 5. Calculate Excess Returns
-    # mean_excess_returns: The average daily excess return 
-    mean_excess_returns = excess_returns.mean()
     
-    # std_excess_returns: The standard deviation of daily excess return 
-    std_excess_returns = excess_returns.std()
-
-    # 6. Compute the Daily Sharpe Ratio
-    daily_sharpe_ratio = mean_excess_returns / std_excess_returns
-
-    # 7. Annualize the Sharpe Ratio for Reporting
-    # We scale the daily ratio to an annual equivalent by multiplying
-    # by the square root of the number of trading days (approx. 252).
+    daily_sharpe_ratio = excess_returns.mean() / excess_returns.std()
+    
+    # Annualize using 252 trading days
     annualized_sharpe_ratio = daily_sharpe_ratio * np.sqrt(252)
 
     return annualized_sharpe_ratio
